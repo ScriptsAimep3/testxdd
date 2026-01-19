@@ -1,54 +1,38 @@
--- ===== CONFIG =====
--- El usuario DEBE definir la key antes
-if not _G.KEY or _G.KEY == "" then
+if not _G.KEY then
     game.Players.LocalPlayer:Kick("Key inválida o no proporcionada")
     return
 end
 
--- ===== SERVICES =====
 local Http = game:GetService("HttpService")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
 local hwid = game:GetService("RbxAnalyticsService"):GetClientId()
 
--- ===== REQUEST CHECK =====
 local req = http_request or request or syn.request
 if not req then
-    LocalPlayer:Kick("Executor no compatible")
+    game.Players.LocalPlayer:Kick("Executor no compatible")
     return
 end
 
--- ===== API REQUEST =====
 local res = req({
-    Url = "https://jeje-33333.onrender.com/validate",
+    Url = "https://jeje-1.onrender.com/validate",
     Method = "POST",
-    Headers = {
-        ["Content-Type"] = "application/json"
-    },
+    Headers = {["Content-Type"] = "application/json"},
     Body = Http:JSONEncode({
         key = _G.KEY,
         hwid = hwid
     })
 })
 
-if not res or not res.Body then
-    LocalPlayer:Kick("Error de conexión con el servidor")
-    return
-end
-
 local data = Http:JSONDecode(res.Body)
 
--- ===== VALIDATION =====
 if not data.valid then
     if data.reason == "EXPIRED" then
-        LocalPlayer:Kick("Tu key se venció")
+        game.Players.LocalPlayer:Kick("Tu key se venció")
     elseif data.reason == "HWID_LOCKED" then
-        LocalPlayer:Kick("HWID no autorizado")
+        game.Players.LocalPlayer:Kick("HWID no autorizado")
     else
-        LocalPlayer:Kick("Key inválida")
+        game.Players.LocalPlayer:Kick("Key inválida")
     end
     return
 end
 
--- ===== EXECUTE REAL SCRIPT =====
 loadstring(game:HttpGet(data.raw))()
